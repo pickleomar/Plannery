@@ -21,3 +21,7 @@ pnpm-debug.log*
 
 .DS_Store
 Thumbs.db
+
+server/backend/__pycache__/*
+server/events/migrations/__pycache__/*
+ server/users/migrations/__pycache__/*
