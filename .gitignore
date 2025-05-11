@@ -7,7 +7,7 @@
 
 # environment variables
 .env
-.env.*
+
 
 # logs
 npm-debug.log*
@@ -24,4 +24,6 @@ Thumbs.db
 
 server/backend/__pycache__/*
 server/events/migrations/__pycache__/*
- server/users/migrations/__pycache__/*
+server/users/migrations/__pycache__/*
+**/__pycache__/**
+**/migrations/__pycache__/**
