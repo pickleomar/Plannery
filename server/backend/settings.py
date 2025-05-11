@@ -43,11 +43,30 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'events',
     'users',
+    'rest_framework.authtoken',
+    'rest_framework',
+    'corsheaders',
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'users.backends.EmailBackend',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -123,6 +142,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+SITE_ID = 1
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -136,3 +156,42 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #Referes back to the Users model (acts as an association between both models)
 AUTH_USER_MODEL = "users.User"
+
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    "http://localhost:5173",  # Default Vite dev server port
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:5173",
+]
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# CSRF settings
+CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_COOKIE_HTTPONLY = False  # False to allow JavaScript access
+CSRF_COOKIE_SAMESITE = None  # None for cross-domain requests
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://localhost:5173",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:5173",
+]
