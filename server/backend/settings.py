@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'events',
     'users',
+    'location',
     'rest_framework.authtoken',
     'rest_framework',
     'corsheaders',
@@ -195,3 +196,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://127.0.0.1:5173",
 ]
+
+# API Keys
+RAPIDAPI_KEY = os.getenv('RAPIDAPI_KEY', '37fee07720msh40f36f83c438a85p14f0e4jsncb74da8d4371')
+#IPINFO_TOKEN = os.getenv('IPINFO_TOKEN', 'your-ipinfo-token-placeholder')

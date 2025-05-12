@@ -2,7 +2,7 @@
 ## 1. Register Endpoint
 
 ```bash
-curl -X POST http://localhost:8080/api/auth/register/ \
+curl -X POST http://localhost:8000/api/auth/register/ \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
@@ -28,7 +28,7 @@ The registration flow works as follows:
 ## 2. Login Endpoint
 
 ```bash
-curl -X POST http://localhost:8080/api/auth/login/ \
+curl -X POST http://localhost:8000/api/auth/login/ \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
@@ -51,7 +51,7 @@ The login flow works as follows:
 ## 3. Logout Endpoint (requires authentication)
 
 ```bash
-curl -X POST http://localhost:8080/api/auth/logout/ \
+curl -X POST http://localhost:8000/api/auth/logout/ \
   -H "Authorization: Token YOUR_TOKEN_HERE"
 ```
 
@@ -68,7 +68,7 @@ The logout flow works as follows:
 ## 4. User Profile Endpoint (requires authentication)
 
 ```bash
-curl -X GET http://localhost:8080/api/auth/profile/ \
+curl -X GET http://localhost:8000/api/auth/profile/ \
   -H "Authorization: Token YOUR_TOKEN_HERE"
 ```
 
@@ -86,7 +86,7 @@ The profile flow works as follows:
 ## 5. CSRF Token Endpoint
 
 ```bash
-curl -X GET http://localhost:8080/api/auth/csrf/ -c cookies.txt
+curl -X GET http://localhost:8000/api/auth/csrf/ -c cookies.txt
 ```
 
 **Code Location:**

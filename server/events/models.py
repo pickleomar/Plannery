@@ -23,10 +23,14 @@ class Provider(models.Model):
 
 class Event(models.Model):
     title = models.CharField(max_length=200)
-    category= models.ForeignKey(Category, on_delete=models.PROTECT)
-    organizer = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete= models.CASCADE)
-    budget= models.IntegerField()
+    category = models.ForeignKey(Category, on_delete=models.PROTECT)
+    organizer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    budget = models.IntegerField()
     start_date = models.DateTimeField()
+    location = models.JSONField(default=dict)  # Store location data as JSON
+    expected_attendance = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
 
     def __str__(self):
         return self.title

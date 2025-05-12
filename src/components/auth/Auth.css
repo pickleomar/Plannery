@@ -171,6 +171,7 @@
 
 .input-container {
   position: relative;
+  color:black;
 }
 
 .icon {
@@ -192,6 +193,9 @@
   font-size: 14px;
   transition: all 0.3s;
   background-color: #f9f9f9;
+}
+.auth-form input{
+  color:black;
 }
 
 .auth-form input:focus,

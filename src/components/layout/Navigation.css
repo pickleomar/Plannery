@@ -1,7 +1,7 @@
 .main-navigation {
-  background-color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 12px 0;
+  background: linear-gradient(135deg, #667eea 0%, rgb(118, 75, 162) 100%);
+  padding: 1rem 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -13,17 +13,19 @@
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
 }
 
 .nav-logo a {
-  font-size: 24px;
+  font-size: 1.8rem;
   font-weight: 700;
-  color: #333;
+  color: #667eea;
   text-decoration: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+}
+
+.logo-image {
+  height: 40px;
+  width: auto;
+  display: block;
 }
 
 .nav-links {
@@ -34,48 +36,52 @@
 
 .nav-link {
   text-decoration: none;
-  color: #555;
+  color: #4a5568;
   font-weight: 500;
   transition: color 0.2s;
 }
 
 .nav-link:hover {
-  color: #667eea;
+  color: #5a67d8;
 }
 
 .nav-register {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: #5a67d8;
   color: white;
-  padding: 8px 16px;
+  padding: 0.5rem 1rem;
   border-radius: 6px;
   font-weight: 600;
+  transition: all 0.3s;
 }
 
 .nav-register:hover {
+  background-color: #4c51bf;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(90, 103, 216, 0.3);
   color: white;
-  opacity: 0.9;
-  transform: translateY(-1px);
 }
 
 .nav-logout {
-  background: none;
-  border: none;
-  color: #555;
-  font-weight: 500;
+  background-color: transparent;
+  color: #4a5568;
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
   cursor: pointer;
-  padding: 0;
-  font-size: 16px;
+  transition: all 0.2s;
 }
 
 .nav-logout:hover {
-  color: #e53e3e;
+  background-color: #f8fafc;
+  border-color: #cbd5e0;
 }
 
 .user-avatar {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: #5a67d8;
   color: white;
   display: flex;
   justify-content: center;
@@ -84,6 +90,10 @@
 }
 
 @media (max-width: 768px) {
+  .main-navigation {
+    padding: 1rem;
+  }
+  
   .nav-container {
     flex-direction: column;
     gap: 15px;

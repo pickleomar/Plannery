@@ -1,6 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import logo from '../../assets/logo.png';
 import './Navigation.css';
+
 
 const Navigation = () => {
   const { currentUser, logout, isAuthenticated } = useAuth();
@@ -19,7 +21,9 @@ const Navigation = () => {
     <nav className="main-navigation">
       <div className="nav-container">
         <div className="nav-logo">
-          <Link to="/">Plannery</Link>
+          <Link to="/">
+            <img src={logo} alt="Plannery Logo" className="logo-image" />
+          </Link>
         </div>
         
         <div className="nav-links">

@@ -3,6 +3,9 @@ import { AuthProvider } from './context/AuthContext';
 import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
 import NotFoundPage from './pages/NotFoundPage';
+import InitialChoicePage from './pages/InitialChoicePage';
+import CategorySelectionPage from './pages/CategorySelectionPage';
+import EventCreationWizard from './pages/EventCreationWizard';
 import MainLayout from './components/layout/MainLayout';
 import ProtectedRoute from './components/routes/ProtectedRoute';
 import GuestRoute from './components/routes/GuestRoute';
@@ -21,6 +24,10 @@ function App() {
             {/* Protected Routes - require authentication */}
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/choice" element={<InitialChoicePage />} />
+              <Route path="/create-event" element={<CategorySelectionPage />} />
+              <Route path="/create-event/:categoryId" element={<EventCreationWizard />} />
+              <Route path="/find-event" element={<NotFoundPage />} /> {/* Placeholder for now */}
               {/* Add more protected routes here */}
             </Route>
 
