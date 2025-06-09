@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/Plannery.png';
 import './Navigation.css';
 
 
@@ -30,7 +30,7 @@ const Navigation = () => {
           {isAuthenticated() ? (
             <>
               <Link to="/dashboard" className="nav-link">Dashboard</Link>
-              <Link to="/events" className="nav-link">My Events</Link>
+              <Link to="/events" className="nav-link">Events</Link>
               <button onClick={handleLogout} className="nav-logout">Logout</button>
               <div className="user-avatar">
                 {currentUser?.username?.charAt(0).toUpperCase() || 'U'}

@@ -16,7 +16,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['email', 'username', 'role', 'password', 'password_confirm']
+        fields = ['email', 'username', 'password', 'password_confirm']
         extra_kwargs = {
             'email': {'required': True},
             'username': {'required': True},
@@ -30,7 +30,8 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         password = validated_data.pop('password')
-        user = User(**validated_data)
+        # Always set role to ORGANIZER by default
+        user = User(role="ORGANIZER", **validated_data)
         user.set_password(password)
         user.save()
         return user

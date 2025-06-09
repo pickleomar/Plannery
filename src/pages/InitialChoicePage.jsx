@@ -9,7 +9,7 @@ const InitialChoicePage = () => {
   };
   
   const handleFindEvent = () => {
-    navigate('/find-event');
+    navigate('/events');
   };
   
   return (

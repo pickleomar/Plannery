@@ -46,8 +46,12 @@ const DashboardPage = () => {
   };
   
   const handleCreateEvent = () => {
-    navigate('/choice');
+    navigate('/create-event');
   };
+
+  const handleChoiceEvent = () => {
+    navigate('/choice');
+  }
   
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -66,7 +70,7 @@ const DashboardPage = () => {
       
       <main className="dashboard-content">
         <div className="dashboard-actions">
-          <h2>Your Dashboard</h2>
+          <h2>Dashboard</h2>
           <button onClick={handleCreateEvent} className="create-event-button">
             <span className="button-icon">+</span> Create New Event
           </button>
