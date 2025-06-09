@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-
+from datetime import timedelta
 import os
 from dotenv import load_dotenv
 
@@ -44,19 +44,51 @@ INSTALLED_APPS = [
     'events',
     'users',
     'location',
-    'rest_framework.authtoken',
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ]
+}
+
+# JWT settings
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': False,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+    'JTI_CLAIM': 'jti',
+    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+    # For using JWT tokens in cookies
+    'AUTH_COOKIE': 'access_token',  # Cookie name for access token
+    'AUTH_COOKIE_REFRESH': 'refresh_token',  # Cookie name for refresh token
+    'AUTH_COOKIE_DOMAIN': None,
+    'AUTH_COOKIE_SECURE': False,  # Set to True in production with HTTPS
+    'AUTH_COOKIE_HTTP_ONLY': True,
+    'AUTH_COOKIE_PATH': '/',
+    'AUTH_COOKIE_SAMESITE': 'Lax',  # 'Strict', 'Lax', 'None'
 }
 
 AUTHENTICATION_BACKENDS = [
@@ -71,6 +103,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'users.middleware.JWTCookieMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -155,7 +188,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#Referes back to the Users model (acts as an association between both models)
+# Refers back to the Users model (acts as an association between both models)
 AUTH_USER_MODEL = "users.User"
 
 # CORS settings
@@ -186,17 +219,23 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
+# Cookie settings
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'  # Options: 'Strict', 'Lax', 'None'
+
 # CSRF settings
 CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
-CSRF_COOKIE_HTTPONLY = False  # False to allow JavaScript access
-CSRF_COOKIE_SAMESITE = None  # None for cross-domain requests
+CSRF_COOKIE_HTTPONLY = False  # False to allow JavaScript to access the cookie
+CSRF_COOKIE_SAMESITE = 'Lax'  # Match the SESSION_COOKIE_SAMESITE setting
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://localhost:5173",
     "http://127.0.0.1:8000",
     "http://127.0.0.1:5173",
 ]
+CSRF_USE_SESSIONS = False  # Store CSRF token in cookie, not in session
+CSRF_COOKIE_NAME = 'csrftoken'  # Default name, included for clarity
 
 # API Keys
 RAPIDAPI_KEY = os.getenv('RAPIDAPI_KEY', '37fee07720msh40f36f83c438a85p14f0e4jsncb74da8d4371')
-#IPINFO_TOKEN = os.getenv('IPINFO_TOKEN', 'your-ipinfo-token-placeholder')

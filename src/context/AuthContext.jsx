@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
     const loadUser = async () => {
       try {
         setLoading(true);
-        // Check if there's a token in localStorage
+        // Check if there's user data in localStorage
         if (authService.isAuthenticated()) {
           // Load the user profile
           const userData = await authService.getCurrentUser();
@@ -24,8 +24,7 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (err) {
         console.error('Failed to load user:', err);
-        // Clear any invalid tokens
-        localStorage.removeItem('token');
+        // Clear any invalid user data
         localStorage.removeItem('user');
       } finally {
         setLoading(false);
@@ -41,8 +40,6 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       const response = await authService.register(userData);
       setCurrentUser(response.user);
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
       return response;
     } catch (err) {
       setError(err.message || 'Registration failed');

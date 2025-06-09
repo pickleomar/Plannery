@@ -1,25 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import './Auth.css';
+import {useNavigate} from 'react-router-dom';
 
 const Register = ({ onToggle }) => {
   const [formData, setFormData] = useState({
     email: '',
     username: '',
-    role: 'ORGANIZER',
     password: '',
     password_confirm: ''
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { register, error: authError, clearError } = useAuth();
-
-  // Clear auth errors when unmounting
+  const navigate = useNavigate();
+  
+  /* // Clear auth errors when unmounting
   useEffect(() => {
     return () => {
       clearError();
     };
-  }, [clearError]);
+  }, [clearError]); */
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,8 +76,15 @@ const Register = ({ onToggle }) => {
     
     try {
       setIsSubmitting(true);
-      await register(formData);
-      // Registration successful, handled by AuthContext
+      const response = await register(formData);
+      
+      // Make sure we have a user and token before navigating
+      if (response && response.user && response.token) {
+        // Use timeout to ensure state is updated before navigation
+        setTimeout(() => {
+          navigate('/choice');
+        }, 100);
+      }
     } catch (error) {
       console.error('Registration failed:', error);
       // Error is handled in AuthContext and displayed below
@@ -93,7 +101,7 @@ const Register = ({ onToggle }) => {
       </div>
       
       <form className="auth-form" onSubmit={handleSubmit}>
-        <div className="form-group">
+        <div className="forum-group-auth">
           <label htmlFor="email">Email</label>
           <div className="input-container">
             <i className="icon email-icon">✉️</i>
@@ -111,7 +119,7 @@ const Register = ({ onToggle }) => {
           {errors.email && <span className="error-message">{errors.email}</span>}
         </div>
         
-        <div className="form-group">
+        <div className="forum-group-auth">
           <label htmlFor="username">Username</label>
           <div className="input-container">
             <i className="icon username-icon">👤</i>
@@ -129,7 +137,7 @@ const Register = ({ onToggle }) => {
           {errors.username && <span className="error-message">{errors.username}</span>}
         </div>
         
-        <div className="form-group">
+        {/* <div className="forum-group-auth">
           <label htmlFor="role">Role</label>
           <div className="input-container">
             <i className="icon role-icon">🏆</i>
@@ -144,9 +152,9 @@ const Register = ({ onToggle }) => {
               <option value="ADMIN">Administrator</option>
             </select>
           </div>
-        </div>
+        </div>  */}
         
-        <div className="form-group">
+        <div className="forum-group-auth">
           <label htmlFor="password">Password</label>
           <div className="input-container">
             <i className="icon password-icon">🔒</i>
@@ -164,7 +172,7 @@ const Register = ({ onToggle }) => {
           {errors.password && <span className="error-message">{errors.password}</span>}
         </div>
         
-        <div className="form-group">
+        <div className="forum-group-auth">
           <label htmlFor="password_confirm">Confirm Password</label>
           <div className="input-container">
             <i className="icon password-icon">🔒</i>

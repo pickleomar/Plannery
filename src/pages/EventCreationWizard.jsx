@@ -213,7 +213,7 @@ const EventCreationWizard = () => {
       <div className="wizard-content">
         {currentStep === 1 && (
           <div className="wizard-step">
-            <div className="form-group">
+            <div className="forum-group-cr-events">
               <label htmlFor="title">Event Title</label>
               <input
                 type="text"
@@ -229,7 +229,7 @@ const EventCreationWizard = () => {
               )}
             </div>
             
-            <div className="form-group">
+            <div className="forum-group-cr-events">
               <label htmlFor="start_date">Event Date</label>
               <DatePicker
                 selected={formData.start_date}
@@ -246,7 +246,7 @@ const EventCreationWizard = () => {
               )}
             </div>
             
-            <div className="form-group">
+            <div className="forum-group-cr-events">
               <label htmlFor="location">Event Location</label>
               <LocationSearch 
                 onLocationSelect={handleLocationSelect} 
@@ -256,7 +256,7 @@ const EventCreationWizard = () => {
               )}
             </div>
             
-            <div className="form-group">
+            <div className="forum-group-cr-events">
               <label htmlFor="expected_attendance">Expected Attendance</label>
               <input
                 type="number"

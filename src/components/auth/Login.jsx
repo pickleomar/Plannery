@@ -12,9 +12,9 @@ const Login = ({ onToggle }) => {
   const { login, error: authError, clearError } = useAuth();
 
   // Clear auth errors when unmounting
-  useEffect(() => {
+ useEffect(() => {
     return () => {
-      clearError();
+      setTimeout(clearError, 2500);
     };
   }, [clearError]);
 
@@ -76,7 +76,7 @@ const Login = ({ onToggle }) => {
       </div>
       
       <form className="auth-form" onSubmit={handleSubmit}>
-        <div className="form-group">
+        <div className="forum-group-auth">
           <label htmlFor="email">Email</label>
           <div className="input-container">
             <i className="icon email-icon">✉️</i>
@@ -94,7 +94,7 @@ const Login = ({ onToggle }) => {
           {errors.email && <span className="error-message">{errors.email}</span>}
         </div>
         
-        <div className="form-group">
+        <div className="forum-group-auth">
           <label htmlFor="password">Password</label>
           <div className="input-container">
             <i className="icon password-icon">🔒</i>

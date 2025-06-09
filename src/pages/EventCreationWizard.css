@@ -82,20 +82,20 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
-.form-group {
+.forum-group-cr-events {
   margin-bottom: 1.5rem;
 }
 
-.form-group label {
+.forum-group-cr-events label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 600;
   color: #4a5568;
 }
 
-.form-group input[type="text"],
-.form-group input[type="number"],
-.form-group select,
+.forum-group-cr-events input[type="text"],
+.forum-group-cr-events input[type="number"],
+.forum-group-cr-events select,
 .react-datepicker__input-container input {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -107,8 +107,8 @@
   color: #2d3748;
 }
 
-.form-group input:focus,
-.form-group select:focus,
+.forum-group-cr-events input:focus,
+.forum-group-cr-events select:focus,
 .react-datepicker__input-container input:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
@@ -117,8 +117,8 @@
   color: #2d3748;
 }
 
-.form-group input.error,
-.form-group select.error,
+.forum-group-cr-events input.error,
+.forum-group-cr-events select.error,
 .react-datepicker__input-container input.error {
   border-color: #e53e3e;
   background-color: #fff5f5;
@@ -229,6 +229,9 @@
   border-radius: 8px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
+  left: 53em;
+  top: 42em;
 }
 
 .react-datepicker__triangle {
@@ -256,9 +259,9 @@
     font-size: 0.9rem;
   }
   
-  .form-group input[type="text"],
-  .form-group input[type="number"],
-  .form-group select,
+  .forum-group-cr-events input[type="text"],
+  .forum-group-cr-events input[type="number"],
+  .forum-group-cr-events select,
   .react-datepicker__input-container input {
     padding: 0.6rem 0.8rem;
   }

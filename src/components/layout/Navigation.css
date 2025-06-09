@@ -17,13 +17,13 @@
 
 .nav-logo a {
   font-size: 1.8rem;
-  font-weight: 700;
-  color: #667eea;
+  font-weight: 600px;
+  color: #19319b;
   text-decoration: none;
 }
 
 .logo-image {
-  height: 40px;
+  height: 3rem;
   width: auto;
   display: block;
 }
@@ -36,26 +36,27 @@
 
 .nav-link {
   text-decoration: none;
-  color: #4a5568;
+  color: #ffffff;
   font-weight: 500;
   transition: color 0.2s;
 }
 
 .nav-link:hover {
-  color: #5a67d8;
+  color: #000000;
 }
 
 .nav-register {
-  background-color: #5a67d8;
+  background-color: transparent;
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 6px;
+  border:0.5px solid #ffffff;
   font-weight: 600;
   transition: all 0.3s;
 }
 
 .nav-register:hover {
-  background-color: #4c51bf;
+  background-color: #6948aa;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(90, 103, 216, 0.3);
   color: white;
@@ -63,7 +64,7 @@
 
 .nav-logout {
   background-color: transparent;
-  color: #4a5568;
+  color: #ffffff;
   border: 1px solid #e2e8f0;
   padding: 0.5rem 1rem;
   border-radius: 6px;
@@ -73,7 +74,7 @@
 }
 
 .nav-logout:hover {
-  background-color: #f8fafc;
+  background-color: #6948aa;
   border-color: #cbd5e0;
 }
 

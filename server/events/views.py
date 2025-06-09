@@ -38,3 +38,12 @@ class UserEventsListView(generics.ListAPIView):
     def get_queryset(self):
         # Filter events by the current user
         return Event.objects.filter(organizer=self.request.user).order_by('-start_date')
+
+
+class AllEventsListView(generics.ListAPIView):
+    """
+    API view to list all events.
+    """
+    queryset = Event.objects.all().order_by('-start_date')
+    serializer_class = EventSerializer
+    permission_classes = [IsAuthenticated]

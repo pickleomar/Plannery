@@ -6,6 +6,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import InitialChoicePage from './pages/InitialChoicePage';
 import CategorySelectionPage from './pages/CategorySelectionPage';
 import EventCreationWizard from './pages/EventCreationWizard';
+import EventsWizard from './components/events/events-wizard/EventsWizard';
 import MainLayout from './components/layout/MainLayout';
 import ProtectedRoute from './components/routes/ProtectedRoute';
 import GuestRoute from './components/routes/GuestRoute';
@@ -27,7 +28,7 @@ function App() {
               <Route path="/choice" element={<InitialChoicePage />} />
               <Route path="/create-event" element={<CategorySelectionPage />} />
               <Route path="/create-event/:categoryId" element={<EventCreationWizard />} />
-              <Route path="/find-event" element={<NotFoundPage />} /> {/* Placeholder for now */}
+              <Route path="/events" element={<EventsWizard/>} /> {/* Placeholder for now */}
               {/* Add more protected routes here */}
             </Route>
 
