@@ -33,6 +33,9 @@ __pycache__/
 **/__pycache__/
 *.pyc
 
+# draft files
+s_ex_promp.txt
+
 # Django stuff
 *.log
 local_settings.py
