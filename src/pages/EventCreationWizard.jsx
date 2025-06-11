@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import LocationSearch from '../components/events/LocationSearch';
+import ServiceProvidersSelection from '../components/events/ServiceProvidersSelection';
 import eventService from '../services/eventService';
 import './EventCreationWizard.css';
 
@@ -13,6 +14,7 @@ const EventCreationWizard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [category, setCategory] = useState(null);
+  const [createdEventId, setCreatedEventId] = useState(null);
 
   // Form data for all steps
   const [formData, setFormData] = useState({
@@ -21,7 +23,8 @@ const EventCreationWizard = () => {
     start_date: new Date(),
     location: null,
     expected_attendance: 0,
-    budget: 0
+    budget: 0,
+    selectedProviders: []
   });
 
   // Validation errors
@@ -96,6 +99,13 @@ const EventCreationWizard = () => {
     }
   };
 
+  const handleProviderSelect = useCallback((providers) => {
+    setFormData(prevData => ({
+      ...prevData,
+      selectedProviders: providers
+    }));
+  }, []);
+
   const validateStep1 = () => {
     const errors = {};
     
@@ -120,57 +130,91 @@ const EventCreationWizard = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (currentStep === 1) {
       const isValidStep1 = validateStep1();
       if (!isValidStep1) return;
       
-      // For now we just log the data since we only have one step
-      console.log('Event data from step 1:', formData);
-      
-      // Here you'd either go to step 2 or submit if only one step
-      // setCurrentStep(2);
-      
-      // For demo purposes, let's try to create the event
-      handleSubmit();
-    }
-  };
-
-  const handleSubmit = async () => {
-    try {
-      setLoading(true);
-      
-      // Format the data for the API
-      const eventData = {
-        title: formData.title,
-        category: parseInt(formData.category),
-        start_date: formData.start_date.toISOString(),
-        location: {
-          place_id: formData.location.placeId,
-          description: formData.location.description,
-          main_text: formData.location.mainText,
-          secondary_text: formData.location.secondaryText
-        },
-        expected_attendance: parseInt(formData.expected_attendance),
-        budget: parseInt(formData.budget)
-      };
-      
-      // Call the API to create the event
-      const response = await eventService.createEvent(eventData);
-      
-      // Redirect to the dashboard or event details page
-      navigate('/dashboard', { 
-        state: { 
-          success: true, 
-          message: 'Event created successfully!' 
-        } 
-      });
-      
-    } catch (err) {
-      console.error('Failed to create event:', err);
-      setError('Failed to create the event. Please try again.');
-    } finally {
-      setLoading(false);
+      // Create the event in the backend before proceeding to step 2
+      try {
+        setLoading(true);
+        
+        // Format the data for the API
+        const eventData = {
+          title: formData.title,
+          category: parseInt(formData.category),
+          start_date: formData.start_date.toISOString(),
+          location: {
+            place_id: formData.location.placeId,
+            description: formData.location.description,
+            main_text: formData.location.mainText,
+            secondary_text: formData.location.secondaryText
+          },
+          expected_attendance: parseInt(formData.expected_attendance),
+          budget: parseInt(formData.budget)
+        };
+        
+        // Call the API to create the event
+        const response = await eventService.createEvent(eventData);
+        setCreatedEventId(response.id);
+        
+        // Move to step 2
+        setCurrentStep(2);
+        
+      } catch (err) {
+        console.error('Failed to create event:', err);
+        setError('Failed to create the event. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    } else if (currentStep === 2) {
+      // Save selected providers
+      if (formData.selectedProviders.length > 0) {
+        try {
+          setLoading(true);
+          
+          // Save each selected provider
+          const savePromises = formData.selectedProviders.map(provider => 
+            eventService.createProviderFromApi({
+              event_id: createdEventId,
+              provider_data: provider
+            })
+          );
+          
+          await Promise.all(savePromises);
+          
+          // Redirect to the dashboard with success message
+          navigate('/dashboard', { 
+            state: { 
+              success: true, 
+              message: 'Event created successfully with selected providers!' 
+            } 
+          });
+          
+        } catch (err) {
+          console.error('Failed to save providers:', err);
+          setError('Event created but failed to save providers. You can add them later.');
+          
+          // Redirect anyway since the event was created
+          navigate('/dashboard', { 
+            state: { 
+              success: true, 
+              warning: true,
+              message: 'Event created successfully, but there was an issue saving providers.' 
+            } 
+          });
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        // No providers selected, just redirect
+        navigate('/dashboard', { 
+          state: { 
+            success: true, 
+            message: 'Event created successfully!' 
+          } 
+        });
+      }
     }
   };
 
@@ -206,7 +250,10 @@ const EventCreationWizard = () => {
           <div className="step-line"></div>
           <div className={`step ${currentStep >= 3 ? 'active' : ''}`}>3</div>
         </div>
-        <h2>Step {currentStep}: {currentStep === 1 ? 'Basic Information' : ''}</h2>
+        <h2>
+          Step {currentStep}: 
+          {currentStep === 1 ? ' Basic Information' : currentStep === 2 ? ' Service Providers' : ''}
+        </h2>
         {category && <div className="selected-category">Category: {category.name}</div>}
       </div>
       
@@ -268,6 +315,43 @@ const EventCreationWizard = () => {
                 onChange={handleInputChange}
               />
             </div>
+            
+            <div className="forum-group-cr-events">
+              <label htmlFor="budget">Budget (in $)</label>
+              <input
+                type="number"
+                id="budget"
+                name="budget"
+                placeholder="Event budget"
+                min="0"
+                value={formData.budget}
+                onChange={handleInputChange}
+              />
+            </div>
+          </div>
+        )}
+        
+        {currentStep === 2 && (
+          <div className="wizard-step">
+            <ServiceProvidersSelection 
+              eventData={{
+                title: formData.title,
+                category: category,
+                location: formData.location
+              }}
+              onProviderSelect={handleProviderSelect}
+            />
+            
+            <div className="providers-note">
+              <p>
+                Note: You can select multiple service providers or none at all. 
+                You can always add or remove providers later.
+              </p>
+              <p className="api-note">
+                If service providers cannot be loaded, you can continue without selecting any.
+                The service might be temporarily unavailable or your location might not have any providers in our database.
+              </p>
+            </div>
           </div>
         )}
       </div>
@@ -286,7 +370,9 @@ const EventCreationWizard = () => {
           onClick={handleNextStep}
           disabled={loading}
         >
-          {loading ? 'Creating...' : currentStep === 3 ? 'Create Event' : 'Next'}
+          {loading 
+            ? (currentStep === 1 ? 'Creating...' : 'Saving...') 
+            : (currentStep === 2 ? 'Finish' : 'Next')}
         </button>
       </div>
     </div>

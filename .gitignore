@@ -35,6 +35,8 @@ __pycache__/
 
 # draft files
 s_ex_promp.txt
+classdiagram.png
+Chnages.txt
 
 # Django stuff
 *.log

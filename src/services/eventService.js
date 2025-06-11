@@ -17,7 +17,7 @@ const getCategories = async () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
+        'X-Csrftoken': csrfToken,
       },
       credentials: 'include', // Important for cookies
     });
@@ -43,7 +43,7 @@ const createEvent = async (eventData) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
+        'X-Csrftoken': csrfToken, // Changed to match Django's expected header name
       },
       credentials: 'include', // Important for cookies
       body: JSON.stringify(eventData)
@@ -71,7 +71,7 @@ const getUserEvents = async () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
+        'X-Csrftoken': csrfToken,
       },
       credentials: 'include', // Important for cookies
     });
@@ -97,7 +97,7 @@ const getInitialLocation = async () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
+        'X-Csrftoken': csrfToken,
       },
       credentials: 'include', // Important for cookies
     });
@@ -129,7 +129,7 @@ const searchLocations = async (query, lat, lng) => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
+        'X-Csrftoken': csrfToken,
       },
       credentials: 'include', // Important for cookies
     });
@@ -155,7 +155,7 @@ const getAllEvents = async () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
+        'X-Csrftoken': csrfToken,
       },
       credentials: 'include', // Important for cookies
     });
@@ -171,13 +171,155 @@ const getAllEvents = async () => {
   }
 };
 
+// Get service providers for an event
+const getServiceProviders = async (eventData) => {
+  try {
+    // Get CSRF token
+    const csrfToken = await getCsrfToken();
+    
+    const response = await fetch(`${API_URL}/location/providers/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Csrftoken': csrfToken,
+      },
+      credentials: 'include', // Important for cookies
+      body: JSON.stringify(eventData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Failed to get service providers: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error getting service providers:', error);
+    throw error;
+  }
+};
+
+// Create a provider from API data and link it to an event
+const createProviderFromApi = async (data) => {
+  try {
+    // Get CSRF token
+    const csrfToken = await getCsrfToken();
+    
+    const response = await fetch(`${API_URL}/events/providers/create-from-api/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Csrftoken': csrfToken,
+      },
+      credentials: 'include', // Important for cookies
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Failed to create provider: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating provider:', error);
+    throw error;
+  }
+};
+
+// Delete an event
+const deleteEvent = async (eventId) => {
+  try {
+    // Get CSRF token
+    const csrfToken = await getCsrfToken();
+    
+    const response = await fetch(`${API_URL}/events/${eventId}/delete/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Csrftoken': csrfToken,
+      },
+      credentials: 'include', // Important for cookies
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Failed to delete event: ${response.status}`);
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    throw error;
+  }
+};
+
+// Get event details including service providers
+const getEventDetails = async (eventId) => {
+  try {
+    // Get CSRF token
+    const csrfToken = await getCsrfToken();
+    
+    const response = await fetch(`${API_URL}/events/${eventId}/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Csrftoken': csrfToken,
+      },
+      credentials: 'include', // Important for cookies
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch event details: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching event details:', error);
+    throw error;
+  }
+};
+
+// Update an existing event
+const updateEvent = async (eventId, eventData) => {
+  try {
+    // Get CSRF token
+    const csrfToken = await getCsrfToken();
+    
+    const response = await fetch(`${API_URL}/events/${eventId}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Csrftoken': csrfToken,
+      },
+      credentials: 'include', // Important for cookies
+      body: JSON.stringify(eventData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Failed to update event: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating event:', error);
+    throw error;
+  }
+};
+
 const eventService = {
   getCategories,
   createEvent,
   getUserEvents,
   getInitialLocation,
   searchLocations,
-  getAllEvents
+  getAllEvents,
+  getServiceProviders,
+  createProviderFromApi,
+  deleteEvent,
+  getEventDetails,
+  updateEvent
 };
 
 export default eventService; 

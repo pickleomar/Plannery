@@ -1,0 +1,49 @@
+.datetime-picker {
+  width: 100%;
+}
+
+.datetime-inputs {
+  display: flex;
+  gap: 10px;
+}
+
+.date-input, .time-input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: white;
+}
+
+.date-input {
+  flex: 3;
+}
+
+.time-input {
+  flex: 2;
+}
+
+/* Style focus state */
+.date-input:focus, .time-input:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+/* Make sure inputs look good on all browsers */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+@media (max-width: 480px) {
+  .datetime-inputs {
+    flex-direction: column;
+  }
+} 

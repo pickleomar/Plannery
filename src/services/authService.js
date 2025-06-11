@@ -6,11 +6,6 @@ let csrfTokenValue = null;
 // Get CSRF token and return the actual token value
 const getCsrfToken = async () => {
   try {
-    // If we already have a token in memory, return it
-    if (csrfTokenValue) {
-      return csrfTokenValue;
-    }
-    
     const response = await fetch(`${API_URL}/csrf/`, {
       method: 'GET',
       credentials: 'include', // Important for cookies
@@ -47,7 +42,8 @@ const getCsrfToken = async () => {
     throw new Error('CSRF token not found');
   } catch (error) {
     console.error('Error fetching CSRF token:', error);
-    throw error;
+    // If we can't get a token, return an empty string to avoid breaking requests
+    return '';
   }
 };
 
