@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
+import EditEventPage from './pages/EditEventPage';
 import NotFoundPage from './pages/NotFoundPage';
 import InitialChoicePage from './pages/InitialChoicePage';
 import CategorySelectionPage from './pages/CategorySelectionPage';
@@ -28,6 +29,7 @@ function App() {
               <Route path="/choice" element={<InitialChoicePage />} />
               <Route path="/create-event" element={<CategorySelectionPage />} />
               <Route path="/create-event/:categoryId" element={<EventCreationWizard />} />
+              <Route path="/edit-event/:eventId" element={<EditEventPage />} />
               <Route path="/events" element={<EventsWizard/>} /> {/* Placeholder for now */}
               {/* Add more protected routes here */}
             </Route>

@@ -90,12 +90,17 @@ const LocationSearch = ({ onLocationSelect, initialLocation = null }) => {
     setSearch(location.description);
     setShowDropdown(false);
     
-    // Format the location data for the parent component
+    // Get approximate coordinates if available from the location data
+    // Google Places API provides these in the 'geometry' field but our RapidAPI wrapper might not
+    // For now, we'll send just the description which will be geocoded on the backend
     const formattedLocation = {
       placeId: location.id,
       description: location.description,
       mainText: location.structured_formatting?.main_text || '',
-      secondaryText: location.structured_formatting?.secondary_text || ''
+      secondaryText: location.structured_formatting?.secondary_text || '',
+      // Add coordinates if we have current location
+      latitude: currentLocation?.lat || null,
+      longitude: currentLocation?.lng || null
     };
     
     onLocationSelect(formattedLocation);
