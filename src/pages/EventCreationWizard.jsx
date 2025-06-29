@@ -291,7 +291,7 @@ const EventCreationWizard = () => {
           <div className="step-line"></div>
           <div className={`step ${currentStep >= 2 ? 'active' : ''}`}>2</div>
           <div className="step-line"></div>
-          <div className={`step ${currentStep >= 3 ? 'active' : ''}`}>3</div>
+          <div className={`step ${currentStep >= 3 ? 'active' : ''}`}>3</div> {/* TODO: Add step 3 maybe for the event description and imageposter */}
         </div>
         <h2>
           Step {currentStep}: 
