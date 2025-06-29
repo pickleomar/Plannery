@@ -103,11 +103,10 @@ const login = async (credentials) => {
     if (!response.ok) {
       const errorData = await response.json();
       
-      // Handle common Django REST Framework error formats
       const errorMessage =
-        errorData.detail ||                      // Standard DRF error
-        errorData.non_field_errors?.[0] ||       // Serializer non-field errors
-        errorData.error ||                       // Custom backend error
+        errorData.detail ||                      
+        errorData.non_field_errors?.[0] ||       
+        errorData.error ||                      
         `Login failed (status: ${response.status})`;
       
       throw new Error(errorMessage);
@@ -115,7 +114,6 @@ const login = async (credentials) => {
 
     const data = await response.json();
     
-    // Store user data in localStorage (but not the token)
     if (data.user) {
       localStorage.setItem('user', JSON.stringify(data.user));
     }

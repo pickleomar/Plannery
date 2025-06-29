@@ -19,7 +19,7 @@ const getCategories = async () => {
         'Content-Type': 'application/json',
         'X-Csrftoken': csrfToken,
       },
-      credentials: 'include', // Important for cookies
+      credentials: 'include', 
     });
 
     if (!response.ok) {
@@ -43,9 +43,9 @@ const createEvent = async (eventData) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Csrftoken': csrfToken, // Changed to match Django's expected header name
+        'X-Csrftoken': csrfToken, 
       },
-      credentials: 'include', // Important for cookies
+      credentials: 'include', 
       body: JSON.stringify(eventData)
     });
 
@@ -61,7 +61,7 @@ const createEvent = async (eventData) => {
   }
 };
 
-// Get user's events
+// Get users events
 const getUserEvents = async () => {
   try {
     // Get CSRF token
@@ -73,7 +73,7 @@ const getUserEvents = async () => {
         'Content-Type': 'application/json',
         'X-Csrftoken': csrfToken,
       },
-      credentials: 'include', // Important for cookies
+      credentials: 'include', 
     });
 
     if (!response.ok) {
@@ -99,7 +99,7 @@ const getInitialLocation = async () => {
         'Content-Type': 'application/json',
         'X-Csrftoken': csrfToken,
       },
-      credentials: 'include', // Important for cookies
+      credentials: 'include', 
     });
 
     if (!response.ok) {
@@ -131,7 +131,7 @@ const searchLocations = async (query, lat, lng) => {
         'Content-Type': 'application/json',
         'X-Csrftoken': csrfToken,
       },
-      credentials: 'include', // Important for cookies
+      credentials: 'include', 
     });
 
     if (!response.ok) {
@@ -157,7 +157,7 @@ const getAllEvents = async () => {
         'Content-Type': 'application/json',
         'X-Csrftoken': csrfToken,
       },
-      credentials: 'include', // Important for cookies
+      credentials: 'include', 
     });
 
     if (!response.ok) {
@@ -183,7 +183,7 @@ const getServiceProviders = async (eventData) => {
         'Content-Type': 'application/json',
         'X-Csrftoken': csrfToken,
       },
-      credentials: 'include', // Important for cookies
+      credentials: 'include', 
       body: JSON.stringify(eventData)
     });
 
@@ -216,7 +216,7 @@ const searchSpecificProviders = async (searchQuery, eventLocation) => {
         'Content-Type': 'application/json',
         'X-Csrftoken': csrfToken,
       },
-      credentials: 'include', // Important for cookies
+      credentials: 'include', 
       body: JSON.stringify(requestData)
     });
 
@@ -244,7 +244,7 @@ const createProviderFromApi = async (data) => {
         'Content-Type': 'application/json',
         'X-Csrftoken': csrfToken,
       },
-      credentials: 'include', // Important for cookies
+      credentials: 'include', 
       body: JSON.stringify(data)
     });
 
@@ -272,7 +272,7 @@ const clearEventProviders = async (eventId) => {
         'Content-Type': 'application/json',
         'X-Csrftoken': csrfToken,
       },
-      credentials: 'include', // Important for cookies
+      credentials: 'include', 
     });
 
     if (!response.ok) {
@@ -299,7 +299,7 @@ const deleteEvent = async (eventId) => {
         'Content-Type': 'application/json',
         'X-Csrftoken': csrfToken,
       },
-      credentials: 'include', // Important for cookies
+      credentials: 'include', 
     });
 
     if (!response.ok) {
@@ -326,7 +326,7 @@ const getEventDetails = async (eventId) => {
         'Content-Type': 'application/json',
         'X-Csrftoken': csrfToken,
       },
-      credentials: 'include', // Important for cookies
+      credentials: 'include', 
     });
 
     if (!response.ok) {
@@ -356,7 +356,7 @@ const updateEvent = async (eventId, eventData) => {
         'Content-Type': 'application/json',
         'X-Csrftoken': csrfToken,
       },
-      credentials: 'include', // Important for cookies
+      credentials: 'include', 
       body: JSON.stringify(eventData)
     });
 
