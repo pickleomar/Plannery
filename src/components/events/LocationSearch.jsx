@@ -18,7 +18,6 @@ const LocationSearch = ({ onLocationSelect, initialLocation = null }) => {
       fetchInitialLocation();
     }
     
-    // Click outside handler to close dropdown
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
@@ -47,8 +46,7 @@ const LocationSearch = ({ onLocationSelect, initialLocation = null }) => {
   const handleSearchChange = (e) => {
     const query = e.target.value;
     setSearch(query);
-    
-    // Clear previous timeout
+
     if (searchTimeout.current) {
       clearTimeout(searchTimeout.current);
     }
@@ -58,8 +56,7 @@ const LocationSearch = ({ onLocationSelect, initialLocation = null }) => {
       setShowDropdown(false);
       return;
     }
-    
-    // Debounce the search request
+  
     searchTimeout.current = setTimeout(() => {
       searchLocations(query);
     }, 300);
@@ -90,15 +87,12 @@ const LocationSearch = ({ onLocationSelect, initialLocation = null }) => {
     setSearch(location.description);
     setShowDropdown(false);
     
-    // Get approximate coordinates if available from the location data
-    // Google Places API provides these in the 'geometry' field but our RapidAPI wrapper might not
-    // For now, we'll send just the description which will be geocoded on the backend
     const formattedLocation = {
       placeId: location.id,
       description: location.description,
       mainText: location.structured_formatting?.main_text || '',
       secondaryText: location.structured_formatting?.secondary_text || '',
-      // Add coordinates if we have current location
+      
       latitude: currentLocation?.lat || null,
       longitude: currentLocation?.lng || null
     };

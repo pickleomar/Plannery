@@ -99,23 +99,97 @@ const EditEventPage = () => {
     try {
       setLoading(true);
       
-      // Format data for API
+      // Format data for API - exclude service providers from event update
       const formattedData = {
         title: eventData.title,
         description: eventData.description,
         category: eventData.category?.id,
+        budget: eventData.budget || 0,
         start_date: eventData.start_date,
         end_date: eventData.end_date || null,
         location: eventData.location,
-        is_public: eventData.is_public,
-        selected_providers: selectedProviders.map(provider => ({
-          id: provider.id,
-          name: provider.name
-        }))
+        expected_attendance: eventData.expected_attendance || 0,
+        is_public: eventData.is_public
       };
       
-      // Update the event
+      console.log('Updating event with data:', formattedData); // Debug log
+      
+      // Update the event (without service providers)
       await eventService.updateEvent(eventId, formattedData);
+      
+      // Handle service providers separately - save them to the database
+      if (selectedProviders && selectedProviders.length > 0) {
+        console.log('Saving providers to database:', selectedProviders);
+        
+        try {
+          // First, clear existing providers to prevent duplicates
+          console.log('Clearing existing providers...');
+          await eventService.clearEventProviders(eventId);
+          
+          // Clean and format provider data to fit database constraints
+          const cleanedProviders = selectedProviders.map(provider => {
+            // Clean phone number - remove all non-numeric characters and limit to 20 chars
+            let cleanPhone = '';
+            if (provider.phone_number && provider.phone_number !== 'No phone number available') {
+              cleanPhone = provider.phone_number.replace(/[^\d+\-\s()]/g, '').substring(0, 20);
+            }
+            
+            // Clean website URL - limit to 200 chars (URLField default max length)
+            let cleanWebsite = '';
+            if (provider.website && provider.website !== 'No website available') {
+              cleanWebsite = provider.website.substring(0, 200);
+            }
+            
+            // Clean external_id - limit to 100 chars
+            let cleanExternalId = '';
+            if (provider.place_id) {
+              cleanExternalId = provider.place_id.substring(0, 100);
+            } else if (provider.id) {
+              cleanExternalId = provider.id.toString().substring(0, 100);
+            }
+            
+            // Clean provider_type - limit to 100 chars
+            let cleanProviderType = '';
+            if (provider.types && provider.types.length > 0) {
+              cleanProviderType = provider.types[0].substring(0, 100);
+            }
+            
+            return {
+              name: provider.name.substring(0, 100), // Limit name to 100 chars
+              phone_number: cleanPhone,
+              website: cleanWebsite,
+              rating: provider.rating || 0,
+              user_rating_count: provider.user_rating_count || 0,
+              address: provider.address ? provider.address.substring(0, 255) : '', // Limit address to 255 chars
+              description: provider.description || '',
+              tags: provider.tags || [],
+              coordinates: provider.coordinates || {},
+              place_id: cleanExternalId,
+              provider_type: cleanProviderType
+            };
+          });
+          
+          // Save each cleaned provider to the database
+          for (const provider of cleanedProviders) {
+            await eventService.createProviderFromApi({
+              event_id: eventId,
+              provider_data: provider
+            });
+          }
+          console.log('All providers saved successfully');
+        } catch (providerError) {
+          console.error('Error saving providers:', providerError);
+          // Don't fail the entire event update if provider saving fails
+        }
+      } else {
+        // If no providers are selected, clear existing providers
+        try {
+          console.log('No providers selected, clearing existing providers...');
+          await eventService.clearEventProviders(eventId);
+        } catch (clearError) {
+          console.error('Error clearing providers:', clearError);
+        }
+      }
       
       // Show success message and navigate back to dashboard
       navigate('/dashboard', { 
@@ -195,11 +269,41 @@ const EditEventPage = () => {
             <textarea
               id="description"
               name="description"
-              value={eventData.description}
+              value={eventData.description || ''}
               onChange={handleInputChange}
               className="form-control"
               rows="4"
             />
+          </div>
+          
+          <div className="form-row">
+            <div className="form-group half">
+              <label htmlFor="budget">Budget ($)</label>
+              <input
+                type="number"
+                id="budget"
+                name="budget"
+                value={eventData.budget || ''}
+                onChange={handleInputChange}
+                min="0"
+                className="form-control"
+                placeholder="Enter budget"
+              />
+            </div>
+            
+            <div className="form-group half">
+              <label htmlFor="expected_attendance">Expected Attendance</label>
+              <input
+                type="number"
+                id="expected_attendance"
+                name="expected_attendance"
+                value={eventData.expected_attendance || ''}
+                onChange={handleInputChange}
+                min="0"
+                className="form-control"
+                placeholder="Number of attendees"
+              />
+            </div>
           </div>
           
           <div className="form-group">
@@ -245,6 +349,7 @@ const EditEventPage = () => {
             <ServiceProvidersSelection 
               eventData={eventData}
               onProviderSelect={handleProviderSelect}
+              initialSelectedProviders={selectedProviders}
             />
           </div>
           

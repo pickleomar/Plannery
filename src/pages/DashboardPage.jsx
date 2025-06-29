@@ -61,9 +61,26 @@ const DashboardPage = () => {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const handleViewEvent = (event) => {
-    setSelectedEvent(event);
-    setShowEventDetails(true);
+  const handleViewEvent = async (event) => {
+    try {
+      console.log('Selected event data:', event); // Debug log
+      console.log('Service providers:', event.service_providers); // Debug log
+      console.log('Providers field:', event.providers); // Debug log
+      console.log('All event fields:', Object.keys(event)); // Debug log
+      
+      // Fetch detailed event data including service providers
+      const detailedEvent = await eventService.getEventDetails(event.id);
+      console.log('Detailed event data:', detailedEvent);
+      console.log('Detailed service providers:', detailedEvent.service_providers);
+      
+      setSelectedEvent(detailedEvent);
+      setShowEventDetails(true);
+    } catch (error) {
+      console.error('Failed to fetch event details:', error);
+      // Fallback to basic event data if detailed fetch fails
+      setSelectedEvent(event);
+      setShowEventDetails(true);
+    }
   };
 
   const handleEditEvent = (eventId) => {
@@ -199,20 +216,100 @@ const DashboardPage = () => {
                 </div>
               </div>
 
-              {selectedEvent.service_providers && selectedEvent.service_providers.length > 0 && (
-                <div className="event-info-section">
-                  <h4>Selected Service Providers</h4>
-                  <div className="selected-providers-list">
-                    {selectedEvent.service_providers.map((provider, index) => (
-                      <div key={index} className="provider-item">
-                        <h5>{provider.name}</h5>
-                        <div>{provider.address}</div>
-                        <div>Rating: {provider.rating} ({provider.user_rating_count} reviews)</div>
+              <div className="event-info-section">
+                <h4>Selected Service Providers</h4>
+                {/* Check if there are service providers */}
+                {(selectedEvent.service_providers && selectedEvent.service_providers.length > 0) ? (
+                  <>
+                    {/* Use service_providers if available, otherwise use providers */}
+                    {(() => {
+                      const providersList = selectedEvent.service_providers || [];
+                      console.log('Providers list to display:', providersList);
+                      
+                      return (
+                        <>
+                          <p className="providers-count">({providersList.length} providers selected)</p>
+                          <div className="selected-providers-list">
+                            {providersList.map((provider, index) => (
+                      <div key={index} className="provider-card-modal">
+                        <div className="provider-header-modal">
+                          <h5>{provider.name}</h5>
+                          <div className="provider-rating-modal">
+                            <span className="rating-stars">
+                              {'★'.repeat(Math.floor(provider.rating || 0))}
+                              {'☆'.repeat(5 - Math.floor(provider.rating || 0))}
+                            </span>
+                            <span className="rating-text">({provider.rating || 'N/A'})</span>
+                          </div>
+                        </div>
+                        
+                        <div className="provider-details-modal">
+                          <div className="provider-info-row">
+                            <span className="info-icon">📍</span>
+                            <span>{provider.address || 'Address not available'}</span>
+                          </div>
+                          
+                          {provider.distance && (
+                            <div className="provider-info-row">
+                              <span className="info-icon">📏</span>
+                              <span>{provider.distance} km away</span>
+                            </div>
+                          )}
+                          
+                          {provider.phone_number && provider.phone_number !== 'No phone number available' && (
+                            <div className="provider-info-row">
+                              <span className="info-icon">📞</span>
+                              <span>{provider.phone_number}</span>
+                            </div>
+                          )}
+                          
+                          {provider.website && provider.website !== 'No website available' && (
+                            <div className="provider-info-row">
+                              <span className="info-icon">🌐</span>
+                              <a href={provider.website} target="_blank" rel="noopener noreferrer" className="website-link">
+                                Visit Website
+                              </a>
+                            </div>
+                          )}
+                          
+                          {provider.user_rating_count && (
+                            <div className="provider-info-row">
+                              <span className="info-icon">💬</span>
+                              <span>{provider.user_rating_count} reviews</span>
+                            </div>
+                          )}
+                          
+                          {provider.tags && provider.tags.length > 0 && (
+                            <div className="provider-tags-modal">
+                              {provider.tags.slice(0, 3).map((tag, i) => (
+                                <span key={i} className="tag-modal">{tag}</span>
+                              ))}
+                              {provider.tags.length > 3 && (
+                                <span className="tag-modal more-tags">+{provider.tags.length - 3} more</span>
+                              )}
+                            </div>
+                          )}
+                          
+                          {provider.description && provider.description !== 'No description available' && (
+                            <div className="provider-description-modal">
+                              <p>{provider.description.length > 150 ? 
+                                `${provider.description.substring(0, 150)}...` : 
+                                provider.description}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                            ))}
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </>
+                ) : (
+                  <p className="no-providers-message">No service providers selected for this event.</p>
+                )}
+              </div>
             </div>
             <div className="modal-footer">
               <button 

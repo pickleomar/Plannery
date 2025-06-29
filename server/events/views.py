@@ -74,6 +74,10 @@ class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
         
         for event_provider in event_providers:
             provider = event_provider.provider
+            print(f"Backend provider: {provider.name}")
+            print(f"  phone: {provider.phone}")
+            print(f"  website: {provider.website}")
+            
             provider_data = {
                 'id': provider.id,
                 'name': provider.name,
@@ -82,8 +86,14 @@ class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
                 'user_rating_count': provider.review_count,
                 'description': provider.description,
                 'tags': provider.tags,
-                'status': event_provider.status
+                'phone_number': provider.phone or 'No phone number available',
+                'website': provider.website or 'No website available',
+                'status': event_provider.status,
+                'coordinates': provider.coordinates,
+                'distance': None  # Distance not available in stored data
             }
+            print(f"  formatted phone_number: {provider_data['phone_number']}")
+            print(f"  formatted website: {provider_data['website']}")
             providers_data.append(provider_data)
             
         # Add providers to the response
@@ -174,6 +184,8 @@ def create_provider_from_api(request):
             api_source='RAPIDAPI',
             external_id=provider_data.get('place_id', ''),
             address=provider_data.get('address', ''),
+            phone=provider_data.get('phone_number', ''),
+            website=provider_data.get('website', ''),
             rating=provider_data.get('rating', 0.0),
             review_count=provider_data.get('user_rating_count', 0),
             coordinates=provider_data.get('coordinates', {}),
@@ -201,5 +213,41 @@ def create_provider_from_api(request):
     except Exception as e:
         return Response(
             {'error': f'Failed to create provider: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def clear_event_providers(request, event_id):
+    """
+    Clear all providers from an event.
+    """
+    try:
+        event = Event.objects.get(pk=event_id)
+        
+        # Only the event organizer can clear providers
+        if event.organizer != request.user:
+            return Response(
+                {'error': 'You are not authorized to modify providers for this event'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Delete all EventProvider relationships for this event
+        deleted_count = EventProvider.objects.filter(event=event).delete()[0]
+        
+        return Response(
+            {'message': f'Successfully cleared {deleted_count} providers from event'},
+            status=status.HTTP_200_OK
+        )
+        
+    except Event.DoesNotExist:
+        return Response(
+            {'error': 'Event not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        return Response(
+            {'error': f'Failed to clear providers: {str(e)}'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )

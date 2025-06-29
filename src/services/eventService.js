@@ -199,6 +199,39 @@ const getServiceProviders = async (eventData) => {
   }
 };
 
+// Search for specific service providers by text query
+const searchSpecificProviders = async (searchQuery, eventLocation) => {
+  try {
+    // Get CSRF token
+    const csrfToken = await getCsrfToken();
+    
+    const requestData = {
+      search_query: searchQuery,
+      event_location: eventLocation
+    };
+    
+    const response = await fetch(`${API_URL}/location/search-providers/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Csrftoken': csrfToken,
+      },
+      credentials: 'include', // Important for cookies
+      body: JSON.stringify(requestData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Failed to search providers: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error searching specific providers:', error);
+    throw error;
+  }
+};
+
 // Create a provider from API data and link it to an event
 const createProviderFromApi = async (data) => {
   try {
@@ -223,6 +256,33 @@ const createProviderFromApi = async (data) => {
     return await response.json();
   } catch (error) {
     console.error('Error creating provider:', error);
+    throw error;
+  }
+};
+
+// Clear all providers from an event
+const clearEventProviders = async (eventId) => {
+  try {
+    // Get CSRF token
+    const csrfToken = await getCsrfToken();
+    
+    const response = await fetch(`${API_URL}/events/${eventId}/providers/clear/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Csrftoken': csrfToken,
+      },
+      credentials: 'include', // Important for cookies
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Failed to clear providers: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error clearing providers:', error);
     throw error;
   }
 };
@@ -286,6 +346,10 @@ const updateEvent = async (eventId, eventData) => {
     // Get CSRF token
     const csrfToken = await getCsrfToken();
     
+    // Debug: Log the data being sent
+    console.log('Updating event with ID:', eventId);
+    console.log('Event data being sent:', JSON.stringify(eventData, null, 2));
+    
     const response = await fetch(`${API_URL}/events/${eventId}/`, {
       method: 'PUT',
       headers: {
@@ -298,6 +362,8 @@ const updateEvent = async (eventId, eventData) => {
 
     if (!response.ok) {
       const errorData = await response.json();
+      console.error('Update failed with status:', response.status);
+      console.error('Error response:', errorData);
       throw new Error(errorData.detail || `Failed to update event: ${response.status}`);
     }
 
@@ -316,7 +382,9 @@ const eventService = {
   searchLocations,
   getAllEvents,
   getServiceProviders,
+  searchSpecificProviders,
   createProviderFromApi,
+  clearEventProviders,
   deleteEvent,
   getEventDetails,
   updateEvent
