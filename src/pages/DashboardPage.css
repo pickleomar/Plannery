@@ -376,20 +376,161 @@
 
 .selected-providers-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .provider-item {
-  border: 1px solid #eee;
-  border-radius: 4px;
-  padding: 12px;
-  background-color: #fafafa;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 1rem;
 }
 
 .provider-item h5 {
-  margin: 0 0 8px 0;
-  color: #333;
+  margin: 0 0 0.5rem 0;
+  color: #2d3748;
+}
+
+/* Enhanced Provider Card Styles */
+.provider-card-modal {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.2s;
+}
+
+.provider-card-modal:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.provider-header-modal {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.provider-header-modal h5 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 1.1rem;
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+}
+
+.provider-rating-modal {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.rating-stars {
+  color: #fbbf24;
+  font-size: 1rem;
+  letter-spacing: 1px;
+}
+
+.rating-text {
+  color: #6b7280;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.provider-details-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.provider-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #4a5568;
+  line-height: 1.4;
+}
+
+.info-icon {
+  font-size: 1rem;
+  opacity: 0.8;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.website-link {
+  color: #5a67d8;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.website-link:hover {
+  color: #4c51bf;
+  text-decoration: underline;
+}
+
+.provider-tags-modal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.tag-modal {
+  background-color: #e6fffa;
+  color: #285e61;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid #b2f5ea;
+}
+
+.tag-modal.more-tags {
+  background-color: #edf2f7;
+  color: #4a5568;
+  border: 1px solid #cbd5e0;
+  font-style: italic;
+}
+
+.provider-description-modal {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.provider-description-modal p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+/* Responsive adjustments for provider cards */
+@media (max-width: 768px) {
+  .selected-providers-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .provider-header-modal {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .provider-info-row {
+    flex-wrap: wrap;
+  }
 }
 
 /* Delete Confirmation Modal */

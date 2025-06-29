@@ -274,6 +274,12 @@ def get_location_providers(request):
         # Process and rank results
         providers = []
         for place in nearby_results['places']:
+            # Debug: Check phone number fields
+            print(f"Place: {place.get('displayName', {}).get('text', 'Unknown')}")
+            print(f"  internationalPhoneNumber: {place.get('internationalPhoneNumber')}")
+            print(f"  nationalPhoneNumber: {place.get('nationalPhoneNumber')}")
+            print(f"  websiteUri: {place.get('websiteUri')}")
+            
             # Skip places without ratings for better recommendations
             if 'rating' not in place:
                 continue
@@ -282,7 +288,7 @@ def get_location_providers(request):
                 'name': place.get('displayName', {}).get('text', 'Unknown Provider'),
                 'rating': place.get('rating', 0),
                 'address': place.get('formattedAddress', 'Address not available'),
-                'phone_number': place.get('internationalPhoneNumber', 'No phone number available'),
+                'phone_number': place.get('internationalPhoneNumber') or place.get('nationalPhoneNumber') or 'No phone number available',
                 'website': place.get('websiteUri', 'No website available'),
                 'types': place.get('types', []),
                 'user_rating_count': place.get('userRatingCount', 0),
@@ -426,3 +432,224 @@ def geocode_address(address):
             'lng': -74.0060, 
             'formatted_address': 'New York, NY, USA (error fallback)'
         }
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def search_specific_providers(request):
+    """
+    Search for specific service providers using text query.
+    
+    Request body should include:
+    - search_query: Text query to search for specific providers
+    - event_location: Location of the event (address or coordinates)
+    """
+    try:
+        # Get request data
+        data = request.data
+        search_query = data.get('search_query', '')
+        event_location = data.get('event_location', '')
+        
+        if not search_query:
+            return Response(
+                {'error': 'Search query is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        if not event_location:
+            return Response(
+                {'error': 'Event location is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Process location data
+        try:
+            geocode_result = geocode_address(event_location.get('description', ''))
+            latitude = geocode_result['lat']
+            longitude = geocode_result['lng']
+            formatted_address = geocode_result['formatted_address']
+            print(f"Geocode result: {geocode_result}")
+            
+            if not latitude or not longitude:
+                return Response(
+                    {'error': 'Failed to get valid coordinates from location data'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except Exception as e:
+            return Response(
+                {'error': f'Failed to process location data: {str(e)}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Search for places using text query
+        search_url = "https://google-map-places-new-v2.p.rapidapi.com/v1/places:searchText"
+        search_headers = {
+            "Content-Type": "application/json",
+            "X-Goog-FieldMask": "*",
+            "x-rapidapi-host": "google-map-places-new-v2.p.rapidapi.com",
+            "x-rapidapi-key": settings.RAPIDAPI_KEY,
+        }
+        
+        search_data = {
+            "textQuery": search_query,
+            "languageCode": "en",
+            "regionCode": "",
+            "rankPreference": 0,
+            "maxResultCount": 15,
+            "locationBias": {
+                "circle": {
+                    "center": {
+                        "latitude": latitude,
+                        "longitude": longitude
+                    },
+                    "radius": 15000  # 15km radius
+                }
+            }
+        }
+        
+        try:
+            search_response = requests.post(search_url, headers=search_headers, json=search_data)
+            
+            # Check if the response was successful
+            if search_response.status_code != 200:
+                error_detail = ""
+                try:
+                    error_content = search_response.json()
+                    if 'message' in error_content:
+                        error_detail = f" Details: {error_content['message']}"
+                    elif 'error' in error_content:
+                        error_detail = f" Details: {error_content['error']}"
+                except:
+                    error_detail = f" Raw response: {search_response.text[:200]}"
+                    
+                return Response(
+                    {'error': f'Search API error (status {search_response.status_code}){error_detail}'},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE
+                )
+        
+            search_results = search_response.json()
+            print(f"Search results: {search_results}")
+            
+        except requests.RequestException as e:
+            return Response(
+                {'error': f'RapidAPI service unavailable: {str(e)}'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        except json.JSONDecodeError:
+            return Response(
+                {'error': 'Invalid response from RapidAPI service'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        
+        if 'places' not in search_results or not search_results['places']:
+            return Response({
+                'message': 'No providers found for your search query',
+                'service_providers': []
+            }, status=status.HTTP_200_OK)
+            
+        # Process and rank results (using same logic as get_location_providers)
+        providers = []
+        for place in search_results['places']:
+            # Debug: Check phone number fields in search results
+            print(f"Search Place: {place.get('displayName', {}).get('text', 'Unknown')}")
+            print(f"  internationalPhoneNumber: {place.get('internationalPhoneNumber')}")
+            print(f"  nationalPhoneNumber: {place.get('nationalPhoneNumber')}")
+            print(f"  websiteUri: {place.get('websiteUri')}")
+            
+            # Skip places without ratings for better recommendations
+            if 'rating' not in place:
+                continue
+                
+            provider = {
+                'name': place.get('displayName', {}).get('text', 'Unknown Provider'),
+                'rating': place.get('rating', 0),
+                'address': place.get('formattedAddress', 'Address not available'),
+                'phone_number': place.get('internationalPhoneNumber') or place.get('nationalPhoneNumber') or 'No phone number available',
+                'website': place.get('websiteUri', 'No website available'),
+                'types': place.get('types', []),
+                'user_rating_count': place.get('userRatingCount', 0),
+                'coordinates': {
+                    'lat': place.get('location', {}).get('latitude'),
+                    'lng': place.get('location', {}).get('longitude')
+                }
+            }
+            
+            # Extract any reviews if available
+            if 'reviews' in place and place['reviews']:
+                review = place['reviews'][0]
+                provider['description'] = review.get('text', {}).get('text', 'No description available')
+            else:
+                provider['description'] = 'No description available'
+                
+            # Calculate distance if coordinates are available
+            if provider['coordinates']['lat'] and provider['coordinates']['lng']:
+                def haversine(lon1, lat1, lon2, lat2):
+                    # Convert decimal degrees to radians 
+                    lon1, lat1, lon2, lat2 = map(math.radians, [lon1, lat1, lon2, lat2])
+                    # Haversine formula 
+                    dlon = lon2 - lon1 
+                    dlat = lat2 - lat1 
+                    a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon/2)**2
+                    c = 2 * math.asin(math.sqrt(a)) 
+                    r = 6371  # Radius of Earth in kilometers
+                    return c * r
+                    
+                provider['distance'] = round(haversine(
+                    longitude, 
+                    latitude,
+                    provider['coordinates']['lng'],
+                    provider['coordinates']['lat']
+                ), 2)
+            else:
+                provider['distance'] = None
+                
+            # Extract tags/keywords from the place types
+            provider['tags'] = [t.replace('_', ' ').title() for t in place.get('types', [])]
+            
+            providers.append(provider)
+            
+        # Rank providers by a combined score of rating, review count, and proximity
+        for provider in providers:
+            # Skip providers without ratings or coordinates
+            if not provider.get('rating') or not provider.get('distance'):
+                provider['rank_score'] = 0
+                continue
+                
+            # Calculate weighted score
+            rating_weight = 0.5
+            review_count_weight = 0.3
+            proximity_weight = 0.2
+            
+            # Normalize review count (0-100 scale)
+            normalized_review_count = min(provider.get('user_rating_count', 0) / 100, 1.0)
+            
+            # Normalize distance (closer is better, max 15km)
+            normalized_distance = 1.0 - min(provider.get('distance', 15) / 15, 1.0)
+            
+            # Calculate combined score
+            provider['rank_score'] = (
+                (provider.get('rating', 0) / 5) * rating_weight +
+                normalized_review_count * review_count_weight +
+                normalized_distance * proximity_weight
+            )
+            
+        # Sort by rank score and take top 10
+        providers.sort(key=lambda x: x.get('rank_score', 0), reverse=True)
+        top_providers = providers[:10]
+        
+        # Format response
+        response_data = {
+            'search_query': search_query,
+            'event_location': {
+                'address': formatted_address,
+                'coordinates': {'lat': latitude, 'lng': longitude}
+            },
+            'service_providers': top_providers
+        }
+        
+        return Response(response_data)
+        
+    except Exception as e:
+        return Response(
+            {'error': f'Failed to search providers: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

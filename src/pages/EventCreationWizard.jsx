@@ -173,8 +173,51 @@ const EventCreationWizard = () => {
         try {
           setLoading(true);
           
-          // Save each selected provider
-          const savePromises = formData.selectedProviders.map(provider => 
+          // Clean and format provider data to fit database constraints
+          const cleanedProviders = formData.selectedProviders.map(provider => {
+            // Clean phone number - remove all non-numeric characters and limit to 20 chars
+            let cleanPhone = '';
+            if (provider.phone_number && provider.phone_number !== 'No phone number available') {
+              cleanPhone = provider.phone_number.replace(/[^\d+\-\s()]/g, '').substring(0, 20);
+            }
+            
+            // Clean website URL - limit to 200 chars (URLField default max length)
+            let cleanWebsite = '';
+            if (provider.website && provider.website !== 'No website available') {
+              cleanWebsite = provider.website.substring(0, 200);
+            }
+            
+            // Clean external_id - limit to 100 chars
+            let cleanExternalId = '';
+            if (provider.place_id) {
+              cleanExternalId = provider.place_id.substring(0, 100);
+            } else if (provider.id) {
+              cleanExternalId = provider.id.toString().substring(0, 100);
+            }
+            
+            // Clean provider_type - limit to 100 chars
+            let cleanProviderType = '';
+            if (provider.types && provider.types.length > 0) {
+              cleanProviderType = provider.types[0].substring(0, 100);
+            }
+            
+            return {
+              name: provider.name.substring(0, 100), // Limit name to 100 chars
+              phone_number: cleanPhone,
+              website: cleanWebsite,
+              rating: provider.rating || 0,
+              user_rating_count: provider.user_rating_count || 0,
+              address: provider.address ? provider.address.substring(0, 255) : '', // Limit address to 255 chars
+              description: provider.description || '',
+              tags: provider.tags || [],
+              coordinates: provider.coordinates || {},
+              place_id: cleanExternalId,
+              provider_type: cleanProviderType
+            };
+          });
+          
+          // Save each cleaned provider
+          const savePromises = cleanedProviders.map(provider => 
             eventService.createProviderFromApi({
               event_id: createdEventId,
               provider_data: provider
