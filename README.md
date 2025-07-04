@@ -151,13 +151,7 @@ npm run dev
 ### 4. Environment Configuration
 
 Create a `.env` file in the server directory:
-```env
-DEBUG=True
-SECRET_KEY=your-secret-key
-DATABASE_URL=postgresql://username:password@localhost:5432/plannery_db
-GOOGLE_PLACES_API_KEY=your-google-places-api-key
-RAPIDAPI_KEY=your-rapidapi-key
-CORS_ALLOWED_ORIGINS=http://localhost:5173
+```cp .env.example .env
 ```
 
 ## 🗄️ Database Schema
