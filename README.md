@@ -148,11 +148,6 @@ npm install
 npm run dev
 ```
 
-### 4. Environment Configuration
-
-Create a `.env` file in the server directory:
-```cp .env.example .env
-```
 
 ## 🗄️ Database Schema
 
