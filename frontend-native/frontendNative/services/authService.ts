@@ -1,0 +1,234 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getApiUrl } from '../config/api';
+
+const API_URL = getApiUrl('/api/auth');
+
+// Store CSRF token in memory
+let csrfTokenValue: string | null = null;
+
+// Get CSRF token and return the actual token value
+const getCsrfToken = async (): Promise<string> => {
+  try {
+    const response = await fetch(`${API_URL}/csrf/`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`CSRF request failed with status: ${response.status}`);
+    }
+    
+    // Get token from response
+    const data = await response.json();
+    
+    // Store the token in memory
+    if (data.csrfToken) {
+      csrfTokenValue = data.csrfToken;
+      return data.csrfToken;
+    }
+    
+    throw new Error('CSRF token not found');
+  } catch (error) {
+    console.error('Error fetching CSRF token:', error);
+    // If we can't get a token, return an empty string to avoid breaking requests
+    return '';
+  }
+};
+
+// Register a new user
+const register = async (userData: any) => {
+  try {
+    // Get CSRF token first
+    const csrfToken = await getCsrfToken();
+    
+    const response = await fetch(`${API_URL}/register/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRFToken': csrfToken,
+      },
+      body: JSON.stringify(userData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Registration failed with status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Store user data in AsyncStorage (but not the token)
+    if (data.user) {
+      await AsyncStorage.setItem('user', JSON.stringify(data.user));
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Registration error:', error);
+    throw error;
+  }
+};
+
+// Login user
+const login = async (credentials: any) => {
+  try {
+    // Get CSRF token first
+    const csrfToken = await getCsrfToken();
+    
+    const response = await fetch(`${API_URL}/login/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRFToken': csrfToken,
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      
+      const errorMessage =
+        errorData.detail ||                      
+        errorData.non_field_errors?.[0] ||       
+        errorData.error ||                      
+        `Login failed (status: ${response.status})`;
+      
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    
+    if (data.user) {
+      await AsyncStorage.setItem('user', JSON.stringify(data.user));
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error; // Propagate to AuthProvider
+  }
+};
+
+// Logout user
+const logout = async () => {
+  try {
+    // Get CSRF token first
+    const csrfToken = await getCsrfToken();
+    
+    const response = await fetch(`${API_URL}/logout/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRFToken': csrfToken,
+      },
+    });
+
+    // Clear user data from AsyncStorage
+    await AsyncStorage.removeItem('user');
+    // Clear CSRF token in memory
+    csrfTokenValue = null;
+    
+    if (!response.ok) {
+      console.warn(`Logout returned status: ${response.status}`);
+      return { detail: 'Logged out locally' };
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Logout error:', error);
+    // Still remove user data even if server-side logout fails
+    await AsyncStorage.removeItem('user');
+    return { detail: 'Logged out locally' };
+  }
+};
+
+// Refresh the access token
+const refreshToken = async () => {
+  try {
+    // Get CSRF token first
+    const csrfToken = await getCsrfToken();
+    
+    const response = await fetch(`${API_URL}/token/refresh/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to refresh token');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Token refresh error:', error);
+    throw error;
+  }
+};
+
+// Get current user profile
+const getCurrentUser = async () => {
+  try {
+    // First try to refresh the token
+    try {
+      await refreshToken();
+    } catch (error) {
+      console.warn('Token refresh failed, proceeding with current token');
+    }
+    
+    // Get CSRF token
+    const csrfToken = await getCsrfToken();
+    
+    const response = await fetch(`${API_URL}/profile/`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-CSRFToken': csrfToken,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to get user profile: ${response.status}`);
+    }
+    
+    const userData = await response.json();
+    
+    // Update user data in AsyncStorage
+    await AsyncStorage.setItem('user', JSON.stringify(userData));
+    
+    return userData;
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    throw error;
+  }
+};
+
+// Check if user is logged in
+const isAuthenticated = async (): Promise<boolean> => {
+  try {
+    const user = await AsyncStorage.getItem('user');
+    return !!user;
+  } catch (error) {
+    console.error('Error checking authentication:', error);
+    return false;
+  }
+};
+
+const authService = {
+  register,
+  login,
+  logout,
+  getCurrentUser,
+  isAuthenticated,
+  getCsrfToken,
+  refreshToken
+};
+
+export default authService;

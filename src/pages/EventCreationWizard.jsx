@@ -34,7 +34,7 @@ const EventCreationWizard = () => {
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        // For simplicity, we'll use the categories endpoint and find the one we need
+        
         const categories = await eventService.getCategories();
         const foundCategory = categories.find(cat => cat.id.toString() === categoryId);
         

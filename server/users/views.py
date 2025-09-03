@@ -42,10 +42,7 @@ def set_jwt_cookies(response, access_token, refresh_token):
 
 @ensure_csrf_cookie
 def get_csrf(request):
-    """
-    This view sets a CSRF cookie and returns the token.
-    The 'ensure_csrf_cookie' decorator ensures the cookie is set.
-    """
+   
     # Force Django to set the CSRF cookie
     csrf_token = get_token(request)
     

@@ -29,7 +29,11 @@ SECRET_KEY = 'django-insecure-2&2md^$g5q=6@&9)0h#e4wgqb2skuc8@_kh!eid=seoc7d7wq^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '192.168.11.155',  # IP for mobile testing
+]
 
 
 # Application definition
@@ -197,6 +201,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Default Vite dev server port
     "http://127.0.0.1:8000",
     "http://127.0.0.1:5173",
+    "http://192.168.11.155:8000",  # Your machine's IP for mobile testing
+    "http://192.168.11.155:5173",
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
@@ -233,6 +239,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:8000",
     "http://127.0.0.1:5173",
+    "http://192.168.11.155:8000",  # Your machine's IP for mobile testing
+    "http://192.168.11.155:5173",
 ]
 CSRF_USE_SESSIONS = False  # Store CSRF token in cookie, not in session
 CSRF_COOKIE_NAME = 'csrftoken'  # Default name, included for clarity
